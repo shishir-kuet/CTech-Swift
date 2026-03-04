@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "Arduino Uno",
+    "description": "Microcontroller board based on ATmega328P.",
+    "price": 650.0,
+    "imageName": "arduino",
+    "category": "Microcontrollers",
+    "specifications": {
+      "Voltage": "5V",
+      "Digital I/O Pins": "14",
+      "Analog Input Pins": "6"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Raspberry Pi 4",
+    "description": "Single-board computer with quad-core processor.",
+    "price": 22500.0,
+    "imageName": "raspberrypi",
+    "category": "Microcontrollers",
+    "specifications": {
+      "RAM": "4GB",
+      "USB Ports": "4",
+      "HDMI": "2"
+    }
+  }
+]
