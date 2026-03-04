@@ -5,38 +5,95 @@
 //  Created by macos on 4/3/26.
 //
 
-import Foundation
 import SwiftUI
-import FirebaseFirestore
 
 struct ProductListView: View {
-    @State private var products = [Product]()
+    @StateObject private var productVM = ProductViewModel()
+    @StateObject private var cartVM = CartViewModel()
+    @State private var showCart = false
     
     var body: some View {
         NavigationView {
-            List(products) { product in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(product.name).font(.headline)
-                        Text("$\(product.price, specifier: "%.2f")").foregroundColor(.secondary)
+            VStack {
+                // Search bar
+                TextField("Search products...", text: $productVM.searchText)
+                    .textFieldStyle(.roundedBorder)
+                    .padding()
+                    .onChange(of: productVM.searchText) { _ in
+                        Task {
+                            await productVM.searchProducts()
+                        }
                     }
-                    Spacer()
-                    Button("Buy Now") {
-                        print("Purchasing \(product.name)")
+                
+                // Error message
+                if let errorMessage = productVM.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .padding(.horizontal)
+                }
+                
+                // Loading indicator
+                if productVM.isLoading {
+                    ProgressView("Loading products...")
+                        .padding()
+                }
+                
+                // Product list
+                List(productVM.filteredProducts) { product in
+                    NavigationLink(destination: ProductDetailView(product: product)
+                        .environmentObject(cartVM)) {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(product.name).font(.headline)
+                                Text(product.description)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                                Text("৳\(product.price, specifier: "%.2f")")
+                                    .foregroundColor(.blue)
+                                    .bold()
+                            }
+                            Spacer()
+                            Button(action: {
+                                cartVM.addToCart(product: product)
+                            }) {
+                                Image(systemName: "cart.badge.plus")
+                                    .foregroundColor(.blue)
+                            }
+                            .buttonStyle(.borderless)
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
+                }
+                .listStyle(.plain)
+                .refreshable {
+                    await productVM.refresh()
                 }
             }
             .navigationTitle("Shop")
-            .onAppear {
-                fetchProducts()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showCart.toggle()
+                    }) {
+                        HStack {
+                            Image(systemName: "cart")
+                            if !cartVM.cartItems.isEmpty {
+                                Text("\(cartVM.cartItems.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(4)
+                                    .background(Color.red)
+                                    .clipShape(Circle())
+                            }
+                        }
+                    }
+                }
             }
-        }
-    }
-    
-    func fetchProducts() {
-        Firestore.firestore().collection("products").addSnapshotListener { snap, _ in
-            self.products = snap?.documents.compactMap { try? $0.data(as: Product.self) } ?? []
+            .sheet(isPresented: $showCart) {
+                CartView()
+                    .environmentObject(cartVM)
+            }
         }
     }
 }

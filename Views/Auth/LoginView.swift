@@ -5,7 +5,6 @@
 //  Created by macos on 4/3/26.
 //
 
-import Foundation
 import SwiftUI
 
 struct LoginView: View {
@@ -21,14 +20,22 @@ struct LoginView: View {
                 TextField("Email", text: $email)
                     .textFieldStyle(.roundedBorder)
                     .autocapitalization(.none)
+                    .keyboardType(.emailAddress)
                 
                 SecureField("Password", text: $password)
                     .textFieldStyle(.roundedBorder)
+                
+                if let errorMessage = authVM.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
                 
                 Button("Login") {
                     authVM.login(email: email, password: password)
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(email.isEmpty || password.isEmpty)
                 
                 NavigationLink("Don't have an account? Register", destination: RegisterView())
             }
