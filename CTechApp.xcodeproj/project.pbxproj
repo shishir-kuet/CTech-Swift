@@ -36,6 +36,12 @@
 		22D7257F2F58233C00140BC0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 22D7257E2F58233C00140BC0 /* FirebaseStorage */; };
 		22D725842F5823A100140BC0 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725832F5823A100140BC0 /* LoginView.swift */; };
 		22D725862F5823E200140BC0 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725852F5823E200140BC0 /* RegisterView.swift */; };
+		22E725872F59000100140BC0 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E725882F59000100140BC0 /* NetworkManager.swift */; };
+		22E725892F59001100140BC0 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E7258A2F59001100140BC0 /* APIService.swift */; };
+		22E7258B2F59002100140BC0 /* APIEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E7258C2F59002100140BC0 /* APIEndpoints.swift */; };
+		22E7258D2F59003100140BC0 /* APIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E7258E2F59003100140BC0 /* APIConfiguration.swift */; };
+		22E7258F2F59004100140BC0 /* OrderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E725902F59004100140BC0 /* OrderService.swift */; };
+		22E725912F59005100140BC0 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E725922F59005100140BC0 /* Order.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +87,12 @@
 		22D7256D2F58214400140BC0 /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
 		22D725832F5823A100140BC0 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		22D725852F5823E200140BC0 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		22E725882F59000100140BC0 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		22E7258A2F59001100140BC0 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		22E7258C2F59002100140BC0 /* APIEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIEndpoints.swift; sourceTree = "<group>"; };
+		22E7258E2F59003100140BC0 /* APIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfiguration.swift; sourceTree = "<group>"; };
+		22E725902F59004100140BC0 /* OrderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderService.swift; sourceTree = "<group>"; };
+		22E725922F59005100140BC0 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +190,7 @@
 			sourceTree = "<group>";
 		};
 		22777D362F56D4FE00D9AC10 /* Models */ = {
+				22E725922F59005100140BC0 /* Order.swift */,
 			isa = PBXGroup;
 			children = (
 				22777D372F56D54900D9AC10 /* Product.swift */,
@@ -195,6 +208,11 @@
 				22777D402F56D70600D9AC10 /* CartViewModel.swift */,
 				22D725692F58209000140BC0 /* AuthViewModel.swift */,
 			);
+				22E725882F59000100140BC0 /* NetworkManager.swift */,
+				22E7258A2F59001100140BC0 /* APIService.swift */,
+				22E7258C2F59002100140BC0 /* APIEndpoints.swift */,
+				22E7258E2F59003100140BC0 /* APIConfiguration.swift */,
+				22E725902F59004100140BC0 /* OrderService.swift */,
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
@@ -404,6 +422,12 @@
 				22D725652F5819A100140BC0 /* HomeView.swift in Sources */,
 				22777D3F2F56D60C00D9AC10 /* ProductViewModel.swift in Sources */,
 				22777D382F56D54900D9AC10 /* Product.swift in Sources */,
+				22E725872F59000100140BC0 /* NetworkManager.swift in Sources */,
+				22E725892F59001100140BC0 /* APIService.swift in Sources */,
+				22E7258B2F59002100140BC0 /* APIEndpoints.swift in Sources */,
+				22E7258D2F59003100140BC0 /* APIConfiguration.swift in Sources */,
+				22E7258F2F59004100140BC0 /* OrderService.swift in Sources */,
+				22E725912F59005100140BC0 /* Order.swift in Sources */,
 				22777D3C2F56D5A800D9AC10 /* CartItem.swift in Sources */,
 				22D7256A2F58209000140BC0 /* AuthViewModel.swift in Sources */,
 				22777D3A2F56D57700D9AC10 /* Category.swift in Sources */,
