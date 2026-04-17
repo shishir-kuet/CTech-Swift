@@ -32,14 +32,20 @@ struct LoginView: View {
                         .multilineTextAlignment(.center)
                 }
 
+                if authVM.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                }
+
                 Button("Login") {
                     authVM.login(email: email, password: password)
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(email.isEmpty || password.isEmpty)
+                .disabled(email.isEmpty || password.isEmpty || authVM.isLoading)
 
                 NavigationLink("Don't have an account? Register", destination: RegisterView())
                     .font(.footnote)
+                    .padding(.top, 10)
             }
             .padding()
             .navigationTitle("CTech Store")

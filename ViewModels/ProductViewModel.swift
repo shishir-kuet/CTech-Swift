@@ -43,8 +43,9 @@ class ProductViewModel: ObservableObject {
                 let firestoreProducts: [Product] = snapshot?.documents.compactMap { doc -> Product? in
                     let d = doc.data()
                     guard let name = d["name"] as? String, !name.isEmpty else { return nil }
+                    let productId = d["id"] as? Int ?? doc.documentID.hashValue
                     return Product(
-                        id: d["id"] as? Int ?? 0,
+                        id: productId,
                         firestoreId: doc.documentID,
                         name: name,
                         description: d["description"] as? String ?? "",

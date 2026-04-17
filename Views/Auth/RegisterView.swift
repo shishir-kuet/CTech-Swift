@@ -35,11 +35,16 @@ struct RegisterView: View {
                     .multilineTextAlignment(.center)
             }
 
+            if authVM.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+            }
+
             Button("Sign Up") {
                 authVM.register(email: email, password: password, displayName: displayName)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(displayName.isEmpty || email.isEmpty || password.isEmpty)
+            .disabled(displayName.isEmpty || email.isEmpty || password.isEmpty || authVM.isLoading)
         }
         .padding()
     }

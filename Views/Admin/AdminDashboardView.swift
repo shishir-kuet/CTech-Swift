@@ -23,6 +23,10 @@ struct AdminDashboardView: View {
             AdminOrdersView()
                 .tabItem { Label("Orders", systemImage: "list.bullet.rectangle") }
                 .tag(2)
+
+            AdminUsersView()
+                .tabItem { Label("Users", systemImage: "person.3") }
+                .tag(3)
         }
         // Logout lives inside each tab's own NavigationView toolbar
     }
@@ -93,6 +97,8 @@ struct AdminProductsView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @State private var products: [FirestoreProduct] = []
     @State private var showAddSheet = false
+    @State private var showEditSheet = false
+    @State private var selectedProduct: FirestoreProduct?
 
     var body: some View {
         NavigationView {
@@ -110,6 +116,14 @@ struct AdminProductsView: View {
                                 .font(.caption)
                                 .foregroundColor(product.stock > 0 ? .green : .red)
                         }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button {
+                            editProduct(product)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(.blue)
                     }
                 }
                 .onDelete(perform: deleteProducts)
@@ -129,8 +143,18 @@ struct AdminProductsView: View {
             .sheet(isPresented: $showAddSheet) {
                 AddProductSheet(isPresented: $showAddSheet)
             }
+            .sheet(item: $selectedProduct) { product in
+                EditProductSheet(product: product) {
+                    selectedProduct = nil
+                    fetchProducts()
+                }
+            }
             .onAppear { fetchProducts() }
         }
+    }
+
+    private func editProduct(_ product: FirestoreProduct) {
+        selectedProduct = product
     }
 
     private func fetchProducts() {
@@ -164,6 +188,79 @@ struct FirestoreProduct: Identifiable {
     let category: String
     let price: Double
     let stock: Int
+}
+
+// MARK: - Edit Product Sheet
+struct EditProductSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let product: FirestoreProduct
+    let onSaved: () -> Void
+
+    @State private var name: String
+    @State private var brand: String
+    @State private var category: String
+    @State private var price: String
+    @State private var stock: String
+    @State private var isSaving = false
+
+    let categories = ["CPU", "GPU", "RAM", "Storage", "Motherboard", "PSU", "Casing", "Cooler", "Microcontrollers", "Sensors", "Displays", "Components"]
+
+    init(product: FirestoreProduct, onSaved: @escaping () -> Void) {
+        self.product = product
+        self.onSaved = onSaved
+        _name = State(initialValue: product.name)
+        _brand = State(initialValue: product.brand)
+        _category = State(initialValue: product.category)
+        _price = State(initialValue: String(format: "%.2f", product.price))
+        _stock = State(initialValue: String(product.stock))
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Product Info") {
+                    TextField("Name", text: $name)
+                    TextField("Brand", text: $brand)
+                    Picker("Category", selection: $category) {
+                        ForEach(categories, id: \.self) { Text($0) }
+                    }
+                    TextField("Price (BDT)", text: $price)
+                        .keyboardType(.decimalPad)
+                    TextField("Stock Quantity", text: $stock)
+                        .keyboardType(.numberPad)
+                }
+            }
+            .navigationTitle("Edit Product")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") { saveProduct() }
+                        .disabled(name.isEmpty || brand.isEmpty || isSaving)
+                }
+            }
+        }
+    }
+
+    private func saveProduct() {
+        guard !name.isEmpty, !brand.isEmpty else { return }
+        isSaving = true
+        let db = Firestore.firestore()
+        db.collection("products").document(product.id).updateData([
+            "name": name,
+            "brand": brand,
+            "category": category,
+            "price": Double(price) ?? product.price,
+            "stock": Int(stock) ?? product.stock
+        ]) { error in
+            isSaving = false
+            if error == nil {
+                onSaved()
+                dismiss()
+            }
+        }
+    }
 }
 
 // MARK: - Add Product Sheet
