@@ -25,6 +25,8 @@
 		22D725682F58204300140BC0 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725672F58204300140BC0 /* Users.swift */; };
 		22D7256A2F58209000140BC0 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725692F58209000140BC0 /* AuthViewModel.swift */; };
 		22D7256C2F5820F500140BC0 /* AdminDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D7256B2F5820F500140BC0 /* AdminDashboardView.swift */; };
+		22D725882F58240200140BC0 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725872F58240000140BC0 /* OnboardingView.swift */; };
+		22D7258A2F58240600140BC0 /* UserHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725892F58240400140BC0 /* UserHomeView.swift */; };
 		22D7256E2F58214400140BC0 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D7256D2F58214400140BC0 /* ProductListView.swift */; };
 		22D725712F58233B00140BC0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 22D725702F58233B00140BC0 /* FirebaseAnalytics */; };
 		22D725732F58233B00140BC0 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 22D725722F58233B00140BC0 /* FirebaseAnalyticsSwift */; };
@@ -36,6 +38,9 @@
 		22D7257F2F58233C00140BC0 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 22D7257E2F58233C00140BC0 /* FirebaseStorage */; };
 		22D725842F5823A100140BC0 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725832F5823A100140BC0 /* LoginView.swift */; };
 		22D725862F5823E200140BC0 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D725852F5823E200140BC0 /* RegisterView.swift */; };
+		22D7258C2F58240800140BC0 /* PaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D7258B2F58240800140BC0 /* PaymentView.swift */; };
+		22D7258E2F58240A00140BC0 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D7258D2F58240A00140BC0 /* UserProfileView.swift */; };
+		22D725902F58240C00140BC0 /* AdminUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D7258F2F58240C00140BC0 /* AdminUsersView.swift */; };
 		9D2EC6622F649DE000D161DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9D2EC6612F649DE000D161DC /* GoogleService-Info.plist */; };
 		9DB38C772F6482D000E82276 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB38C762F6482D000E82276 /* Order.swift */; };
 		9DB38C792F64836700E82276 /* MyOrdersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB38C782F64836700E82276 /* MyOrdersView.swift */; };
@@ -81,7 +86,12 @@
 		22D725672F58204300140BC0 /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
 		22D725692F58209000140BC0 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		22D7256B2F5820F500140BC0 /* AdminDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminDashboardView.swift; sourceTree = "<group>"; };
+		22D7258F2F58240C00140BC0 /* AdminUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminUsersView.swift; sourceTree = "<group>"; };
 		22D7256D2F58214400140BC0 /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
+		22D725872F58240000140BC0 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		22D725892F58240400140BC0 /* UserHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHomeView.swift; sourceTree = "<group>"; };
+		22D7258B2F58240800140BC0 /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
+		22D7258D2F58240A00140BC0 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		22D725832F5823A100140BC0 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		22D725852F5823E200140BC0 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		9D2EC6612F649DE000D161DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -232,6 +242,7 @@
 				22D725802F58235E00140BC0 /* Auth */,
 				22D725602F5818EF00140BC0 /* ProductDetailView.swift */,
 				22D725622F58192800140BC0 /* CartView.swift */,
+				22D725872F58240000140BC0 /* OnboardingView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -249,6 +260,7 @@
 			isa = PBXGroup;
 			children = (
 				22D7256B2F5820F500140BC0 /* AdminDashboardView.swift */,
+				22D7258F2F58240C00140BC0 /* AdminUsersView.swift */,
 			);
 			path = Admin;
 			sourceTree = "<group>";
@@ -257,6 +269,9 @@
 			isa = PBXGroup;
 			children = (
 				22D7256D2F58214400140BC0 /* ProductListView.swift */,
+				22D725892F58240400140BC0 /* UserHomeView.swift */,
+				22D7258B2F58240800140BC0 /* PaymentView.swift */,
+				22D7258D2F58240A00140BC0 /* UserProfileView.swift */,
 				9DB38C782F64836700E82276 /* MyOrdersView.swift */,
 			);
 			path = Buyer;
@@ -271,6 +286,7 @@
 			buildPhases = (
 				22777D052F56D4D100D9AC10 /* Sources */,
 				22777D062F56D4D100D9AC10 /* Frameworks */,
+				22777D112F56D4D200D9AC20 /* Fix gRPC bundle IDs */,
 				22777D072F56D4D100D9AC10 /* Resources */,
 			);
 			buildRules = (
@@ -401,6 +417,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		22777D112F56D4D200D9AC20 /* Fix gRPC bundle IDs */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/fix_grpc_bundle_ids.sh",
+				"$(BUILT_PRODUCTS_DIR)/",
+				"$(TARGET_BUILD_DIR)/",
+			);
+			name = "Fix gRPC bundle IDs";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "if [ -f \"\$SRCROOT/fix_grpc_bundle_ids.sh\" ]; then bash \"\$SRCROOT/fix_grpc_bundle_ids.sh\"; fi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		22777D052F56D4D100D9AC10 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -424,6 +460,11 @@
 				22D725862F5823E200140BC0 /* RegisterView.swift in Sources */,
 				22D725612F5818EF00140BC0 /* ProductDetailView.swift in Sources */,
 				22D725682F58204300140BC0 /* Users.swift in Sources */,
+				22D725882F58240200140BC0 /* OnboardingView.swift in Sources */,
+				22D7258A2F58240600140BC0 /* UserHomeView.swift in Sources */,
+				22D7258C2F58240800140BC0 /* PaymentView.swift in Sources */,
+				22D7258E2F58240A00140BC0 /* UserProfileView.swift in Sources */,
+				22D725902F58240C00140BC0 /* AdminUsersView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,7 +537,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -558,7 +599,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

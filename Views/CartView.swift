@@ -10,10 +10,7 @@ struct CartView: View {
     @EnvironmentObject var cartVM: CartViewModel
     @EnvironmentObject var authVM: AuthViewModel
 
-    @State private var address = ""
-    @State private var isPlacingOrder = false
-    @State private var orderPlaced = false
-    @State private var orderError: String?
+    @State private var showPayment = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,29 +67,12 @@ struct CartView: View {
                             .foregroundColor(.blue)
                     }
 
-                    TextField("Delivery address", text: $address)
-                        .textFieldStyle(.roundedBorder)
-
-                    if let err = orderError {
-                        Text(err).foregroundColor(.red).font(.caption)
-                    }
-
-                    if orderPlaced {
-                        Label("Order placed successfully!", systemImage: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    }
-
-                    Button {
-                        placeOrder()
-                    } label: {
-                        if isPlacingOrder {
-                            ProgressView()
-                        } else {
-                            Text("Place Order").frame(maxWidth: .infinity)
-                        }
+                    NavigationLink(destination: PaymentView()) {
+                        Text("Proceed to Payment")
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(address.isEmpty || isPlacingOrder || cartVM.cartItems.isEmpty)
+                    .disabled(cartVM.cartItems.isEmpty)
 
                     Button("Clear Cart") { cartVM.clearCart() }
                         .foregroundColor(.red)
@@ -102,61 +82,5 @@ struct CartView: View {
             }
         }
         .navigationTitle("Cart")
-    }
-
-    private func placeOrder() {
-        guard let user = authVM.currentUser else { return }
-        isPlacingOrder = true
-        orderError = nil
-
-        let orderItems = cartVM.cartItems.map {
-            OrderItem(
-                productId: $0.product.id,
-                productName: $0.product.name,
-                price: $0.product.price,
-                quantity: $0.quantity
-            )
-        }
-
-        let order = Order(
-            userId: user.id,
-            userName: user.displayName ?? user.email,
-            items: orderItems,
-            totalPrice: cartVM.totalPrice,
-            status: "Pending",
-            address: address,
-            timestamp: Date()
-        )
-
-        let itemsData = orderItems.map { item -> [String: Any] in
-            ["productId": item.productId,
-             "productName": item.productName,
-             "price": item.price,
-             "quantity": item.quantity]
-        }
-        let orderData: [String: Any] = [
-            "userId": user.id,
-            "userName": user.displayName ?? user.email,
-            "items": itemsData,
-            "totalPrice": cartVM.totalPrice,
-            "status": "Pending",
-            "address": address,
-            "timestamp": Timestamp(date: Date())
-        ]
-        Firestore.firestore().collection("orders").addDocument(data: orderData) { error in
-            DispatchQueue.main.async {
-                isPlacingOrder = false
-                if let error = error {
-                    orderError = error.localizedDescription
-                } else {
-                    orderPlaced = true
-                    cartVM.clearCart()
-                    address = ""
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        orderPlaced = false
-                    }
-                }
-            }
-        }
     }
 }

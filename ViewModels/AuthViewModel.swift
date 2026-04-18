@@ -11,41 +11,56 @@ class AuthViewModel: ObservableObject {
     @Published var currentUser: User?
     @Published var isAuthenticated = false
     @Published var errorMessage: String?
+    @Published var isLoading = false
 
     private let db = Firestore.firestore()
     private let adminEmail = "admin@pcstore.com"
 
     func login(email: String, password: String) {
         errorMessage = nil
+        isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                DispatchQueue.main.async { self.errorMessage = error.localizedDescription }
-                return
-            }
-            if let uid = result?.user.uid {
-                self.fetchUserRole(uid: uid, email: email)
+            DispatchQueue.main.async {
+                self.isLoading = false
+                if let error = error {
+                    self.errorMessage = error.localizedDescription
+                    return
+                }
+                if let uid = result?.user.uid {
+                    self.fetchUserRole(uid: uid, email: email)
+                }
             }
         }
     }
 
     func register(email: String, password: String, displayName: String) {
         errorMessage = nil
+        isLoading = true
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                DispatchQueue.main.async { self.errorMessage = error.localizedDescription }
-                return
-            }
-            guard let uid = result?.user.uid else { return }
+            DispatchQueue.main.async {
+                self.isLoading = false
+                if let error = error {
+                    self.errorMessage = error.localizedDescription
+                    return
+                }
+                guard let uid = result?.user.uid else { return }
 
-            let isAdmin = email.lowercased() == self.adminEmail
-            let userData: [String: Any] = [
-                "id": uid,
-                "email": email,
-                "displayName": displayName,
-                "isAdmin": isAdmin
-            ]
-            self.db.collection("users").document(uid).setData(userData) { _ in
-                self.fetchUserRole(uid: uid, email: email)
+                let isAdmin = email.lowercased() == self.adminEmail
+                let userData: [String: Any] = [
+                    "id": uid,
+                    "email": email,
+                    "displayName": displayName,
+                    "isAdmin": isAdmin,
+                    "role": isAdmin ? "admin" : "user"
+                ]
+                self.db.collection("users").document(uid).setData(userData, merge: true) { error in
+                    if let error = error {
+                        print("Firestore register error: \(error.localizedDescription)")
+                        DispatchQueue.main.async { self.errorMessage = error.localizedDescription }
+                        return
+                    }
+                    self.fetchUserRole(uid: uid, email: email)
+                }
             }
         }
     }
@@ -65,9 +80,15 @@ class AuthViewModel: ObservableObject {
                 let userData: [String: Any] = [
                     "id": uid,
                     "email": email,
-                    "isAdmin": isAdmin
+                    "isAdmin": isAdmin,
+                    "role": isAdmin ? "admin" : "user"
                 ]
-                self.db.collection("users").document(uid).setData(userData) { _ in
+                self.db.collection("users").document(uid).setData(userData, merge: true) { error in
+                    if let error = error {
+                        print("Firestore create missing user document error: \(error.localizedDescription)")
+                        DispatchQueue.main.async { self.errorMessage = error.localizedDescription }
+                        return
+                    }
                     let user = User(id: uid, email: email, displayName: nil, isAdmin: isAdmin)
                     DispatchQueue.main.async {
                         self.currentUser = user

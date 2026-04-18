@@ -9,22 +9,70 @@ import FirebaseFirestore
 struct AdminDashboardView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @State private var selectedTab = 0
+    @State private var showAdminProfile = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            AdminStatsView()
-                .tabItem { Label("Dashboard", systemImage: "chart.bar") }
-                .tag(0)
+        ZStack {
+            TabView(selection: $selectedTab) {
+                AdminStatsView()
+                    .background(
+                        ZStack {
+                            Color.white.ignoresSafeArea()
+                            Color.green.opacity(0.06).ignoresSafeArea()
+                        }
+                    )
+                    .tabItem { Label("Dashboard", systemImage: "chart.bar") }
+                    .tag(0)
 
-            AdminProductsView()
-                .tabItem { Label("Products", systemImage: "shippingbox") }
-                .tag(1)
+                AdminProductsView()
+                    .tabItem { Label("Products", systemImage: "shippingbox") }
+                    .tag(1)
 
-            AdminOrdersView()
-                .tabItem { Label("Orders", systemImage: "list.bullet.rectangle") }
-                .tag(2)
+                AdminOrdersView()
+                    .tabItem { Label("Orders", systemImage: "list.bullet.rectangle") }
+                    .tag(2)
+
+                AdminUsersView()
+                    .tabItem { Label("Users", systemImage: "person.3") }
+                    .tag(3)
+            }
+            
+            // Admin Profile Button - Top Center
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: { showAdminProfile = true }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 24))
+                            Text("Admin")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.8)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(20)
+                    }
+                    .padding(.top, 12)
+                    Spacer()
+                }
+                Spacer()
+            }
+            .zIndex(1)
+            
+            // Admin Profile Sheet
+            .sheet(isPresented: $showAdminProfile) {
+                AdminProfileDetailsView(isPresented: $showAdminProfile)
+                    .environmentObject(authVM)
+            }
         }
-        // Logout lives inside each tab's own NavigationView toolbar
     }
 }
 
@@ -93,6 +141,8 @@ struct AdminProductsView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @State private var products: [FirestoreProduct] = []
     @State private var showAddSheet = false
+    @State private var showEditSheet = false
+    @State private var selectedProduct: FirestoreProduct?
 
     var body: some View {
         NavigationView {
@@ -110,6 +160,14 @@ struct AdminProductsView: View {
                                 .font(.caption)
                                 .foregroundColor(product.stock > 0 ? .green : .red)
                         }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button {
+                            editProduct(product)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(.blue)
                     }
                 }
                 .onDelete(perform: deleteProducts)
@@ -129,8 +187,18 @@ struct AdminProductsView: View {
             .sheet(isPresented: $showAddSheet) {
                 AddProductSheet(isPresented: $showAddSheet)
             }
+            .sheet(item: $selectedProduct) { product in
+                EditProductSheet(product: product) {
+                    selectedProduct = nil
+                    fetchProducts()
+                }
+            }
             .onAppear { fetchProducts() }
         }
+    }
+
+    private func editProduct(_ product: FirestoreProduct) {
+        selectedProduct = product
     }
 
     private func fetchProducts() {
@@ -164,6 +232,231 @@ struct FirestoreProduct: Identifiable {
     let category: String
     let price: Double
     let stock: Int
+}
+
+// MARK: - Edit Product Sheet
+struct EditProductSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let product: FirestoreProduct
+    let onSaved: () -> Void
+
+    @State private var name: String
+    @State private var brand: String
+    @State private var category: String
+    @State private var price: String
+    @State private var stock: String
+    @State private var isSaving = false
+
+    let categories = ["CPU", "GPU", "RAM", "Storage", "Motherboard", "PSU", "Casing", "Cooler", "Microcontrollers", "Sensors", "Displays", "Components"]
+
+    init(product: FirestoreProduct, onSaved: @escaping () -> Void) {
+        self.product = product
+        self.onSaved = onSaved
+        _name = State(initialValue: product.name)
+        _brand = State(initialValue: product.brand)
+        _category = State(initialValue: product.category)
+        _price = State(initialValue: String(format: "%.2f", product.price))
+        _stock = State(initialValue: String(product.stock))
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Product Info") {
+                    TextField("Name", text: $name)
+                    TextField("Brand", text: $brand)
+                    Picker("Category", selection: $category) {
+                        ForEach(categories, id: \.self) { Text($0) }
+                    }
+                    TextField("Price (BDT)", text: $price)
+                        .keyboardType(.decimalPad)
+                    TextField("Stock Quantity", text: $stock)
+                        .keyboardType(.numberPad)
+                }
+            }
+            .navigationTitle("Edit Product")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") { saveProduct() }
+                        .disabled(name.isEmpty || brand.isEmpty || isSaving)
+                }
+            }
+        }
+    }
+
+    private func saveProduct() {
+        guard !name.isEmpty, !brand.isEmpty else { return }
+        isSaving = true
+        let db = Firestore.firestore()
+        db.collection("products").document(product.id).updateData([
+            "name": name,
+            "brand": brand,
+            "category": category,
+            "price": Double(price) ?? product.price,
+            "stock": Int(stock) ?? product.stock
+        ]) { error in
+            isSaving = false
+            if error == nil {
+                onSaved()
+                dismiss()
+            }
+        }
+    }
+}
+
+// MARK: - Admin Profile Details
+struct AdminProfileDetailsView: View {
+    @EnvironmentObject var authVM: AuthViewModel
+    @Binding var isPresented: Bool
+    
+    @State private var adminProfile: User?
+    @State private var totalOrders = 0
+    @State private var totalUsers = 0
+    @State private var totalProducts = 0
+    @State private var isLoading = true
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Profile Header
+                VStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.8)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 100, height: 100)
+                        
+                        Text(String(adminProfile?.displayName?.prefix(1) ?? "A").uppercased())
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Text(adminProfile?.displayName ?? "Admin")
+                        .font(.system(size: 22, weight: .bold))
+                    
+                    Text(adminProfile?.email ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "crown.fill")
+                            .foregroundColor(.yellow)
+                        Text("Administrator")
+                            .font(.caption)
+                            .foregroundColor(.black)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.yellow.opacity(0.2))
+                    .cornerRadius(8)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(24)
+                .background(Color(uiColor: .systemGray6))
+                
+                // Stats Section
+                List {
+                    Section("Statistics") {
+                        HStack {
+                            Image(systemName: "shippingbox.fill")
+                                .foregroundColor(.blue)
+                                .frame(width: 30)
+                            Text("Total Products")
+                            Spacer()
+                            Text("\(totalProducts)")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        }
+                        
+                        HStack {
+                            Image(systemName: "cart.fill")
+                                .foregroundColor(.purple)
+                                .frame(width: 30)
+                            Text("Total Orders")
+                            Spacer()
+                            Text("\(totalOrders)")
+                                .font(.headline)
+                                .foregroundColor(.purple)
+                        }
+                        
+                        HStack {
+                            Image(systemName: "person.2.fill")
+                                .foregroundColor(.orange)
+                                .frame(width: 30)
+                            Text("Total Users")
+                            Spacer()
+                            Text("\(totalUsers)")
+                                .font(.headline)
+                                .foregroundColor(.orange)
+                        }
+                    }
+                }
+                
+                // Logout Button
+                Button(action: { authVM.logout() }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.backward.circle.fill")
+                        Text("Logout")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(14)
+                    .foregroundColor(.white)
+                    .background(Color.red.opacity(0.8))
+                    .cornerRadius(8)
+                }
+                .padding(16)
+            }
+            .navigationTitle("Admin Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") { isPresented = false }
+                        .font(.system(size: 16, weight: .semibold))
+                }
+            }
+            .onAppear { loadData() }
+        }
+    }
+    
+    private func loadData() {
+        guard let uid = authVM.currentUser?.id else { return }
+        
+        // Load admin profile
+        Firestore.firestore().collection("users").document(uid).getDocument { snapshot, _ in
+            if let data = snapshot?.data() {
+                adminProfile = User(
+                    id: uid,
+                    email: data["email"] as? String ?? "",
+                    displayName: data["displayName"] as? String,
+                    isAdmin: true
+                )
+            }
+        }
+        
+        // Load stats
+        Firestore.firestore().collection("orders")
+            .addSnapshotListener { snap, _ in
+                totalOrders = snap?.documents.count ?? 0
+            }
+        
+        Firestore.firestore().collection("products")
+            .addSnapshotListener { snap, _ in
+                totalProducts = snap?.documents.count ?? 0
+            }
+        
+        Firestore.firestore().collection("users")
+            .addSnapshotListener { snap, _ in
+                totalUsers = snap?.documents.count ?? 0
+            }
+    }
 }
 
 // MARK: - Add Product Sheet
@@ -315,14 +608,14 @@ struct AdminOrdersView: View {
     private func fetchOrders() {
         Firestore.firestore()
             .collection("orders")
-            .order(by: "timestamp", descending: true)
             .addSnapshotListener { snap, error in
                 isLoading = false
                 if let error = error {
                     print("AdminOrders fetch error: \(error.localizedDescription)")
                     return
                 }
-                orders = snap?.documents.compactMap { doc -> Order? in
+                var fetchedOrders: [Order] = []
+                fetchedOrders = snap?.documents.compactMap { doc -> Order? in
                     let d = doc.data()
                     let rawItems = d["items"] as? [[String: Any]] ?? []
                     let items = rawItems.map { i in
@@ -345,6 +638,9 @@ struct AdminOrdersView: View {
                         timestamp: ts
                     )
                 } ?? []
+                
+                // Sort by timestamp in descending order
+                orders = fetchedOrders.sorted { ($0.timestamp ?? Date()) > ($1.timestamp ?? Date()) }
             }
     }
 
