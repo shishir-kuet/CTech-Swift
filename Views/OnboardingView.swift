@@ -11,59 +11,64 @@ struct OnboardingView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ZStack {
+            Color.green.opacity(0.08).ignoresSafeArea()
+            
+            VStack(spacing: 24) {
+                Spacer()
 
-            TabView(selection: $currentPage) {
-                ForEach(pages.indices, id: \.self) { index in
-                    VStack(spacing: 24) {
-                        Image(systemName: pages[index].image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 120, height: 120)
-                            .foregroundColor(.blue)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                TabView(selection: $currentPage) {
+                    ForEach(pages.indices, id: \.self) { index in
+                        VStack(spacing: 24) {
+                            Image(systemName: pages[index].image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
+                                .foregroundColor(.blue)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
 
-                        Text(pages[index].title)
-                            .font(.largeTitle)
-                            .bold()
-                            .multilineTextAlignment(.center)
+                            Text(pages[index].title)
+                                .font(.largeTitle)
+                                .bold()
+                                .multilineTextAlignment(.center)
 
-                        Text(pages[index].subtitle)
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                            Text(pages[index].subtitle)
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+                        .tag(index)
                     }
-                    .tag(index)
                 }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .frame(height: 360)
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                .indexViewStyle(.page(backgroundDisplayMode: .always))
+                .frame(height: 360)
 
-            Spacer()
+                Spacer()
 
-            Button(action: advance) {
-                Text(currentPage == pages.count - 1 ? "Get Started" : "Next")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(16)
-            }
-            .padding(.horizontal)
+                Button(action: advance) {
+                    Text(currentPage == pages.count - 1 ? "Get Started" : "Next")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.green.opacity(0.15), radius: 8, x: 0, y: 4)
+                }
+                .padding(.horizontal)
 
-            Button("Skip onboarding") {
-                hasSeenOnboarding = true
+                Button("Skip onboarding") {
+                    hasSeenOnboarding = true
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.bottom)
             }
-            .font(.footnote)
-            .foregroundColor(.secondary)
-            .padding(.bottom)
+            .padding()
         }
-        .padding()
     }
 
     private func advance() {

@@ -8,30 +8,30 @@ import SwiftUI
 struct ProductListView: View {
     @StateObject private var productVM = ProductViewModel()
     @EnvironmentObject var cartVM: CartViewModel
-
+    
     @State private var selectedCategory = "All"
     @State private var selectedBrand = "All"
     @State private var minPrice: Double = 0
     @State private var maxPrice: Double = 0
     private let columns = [GridItem(.adaptive(minimum: 170), spacing: 16)]
-
+    
     private var categories: [String] {
         let cats = productVM.products.map { $0.category }.filter { !$0.isEmpty }
         return ["All"] + Array(Set(cats)).sorted()
     }
-
+    
     private var brands: [String] {
         let brands = productVM.products.map { $0.brand }.filter { !$0.isEmpty }
         return ["All"] + Array(Set(brands)).sorted()
     }
-
+    
     private var priceBounds: ClosedRange<Double> {
         let prices = productVM.products.map { $0.price }
         let min = prices.min() ?? 0
         let max = prices.max() ?? 1000
         return min...max
     }
-
+    
     private var displayedProducts: [Product] {
         let searched = productVM.filteredProducts
         return searched.filter { product in
@@ -41,56 +41,59 @@ struct ProductListView: View {
             return categoryMatch && brandMatch && priceMatch
         }
     }
-
+    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                headerView
-
-                if let error = productVM.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                    ZStack {
-                        Color.white.ignoresSafeArea()
-                        Color.green.opacity(0.06).ignoresSafeArea()
-                        VStack(spacing: 16) {
-                categoryFilter
-
-                if productVM.isLoading {
-                    ProgressView()
-                        .padding(.vertical, 40)
-                } else if displayedProducts.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "bag.fill")
-                            .font(.system(size: 50))
-                            .foregroundColor(.secondary)
-                        Text("No products available")
-                            .foregroundColor(.secondary)
+        ZStack {
+            Color.white.ignoresSafeArea()
+            Color.green.opacity(0.06).ignoresSafeArea()
+            
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 16) {
+                    headerView
+                    
+                    if let error = productVM.errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 40)
-                } else {
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(displayedProducts) { product in
-                            NavigationLink(destination: ProductDetailView(product: product)) {
-                                ProductCardView(product: product, cartVM: cartVM)
+                    
+                    VStack(spacing: 16) {
+                        categoryFilter
+                        
+                        if productVM.isLoading {
+                            ProgressView()
+                                .padding(.vertical, 40)
+                        } else if displayedProducts.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "bag.fill")
+                                    .font(.system(size: 50))
+                                    .foregroundColor(.secondary)
+                                Text("No products available")
+                                    .foregroundColor(.secondary)
                             }
-                            .buttonStyle(.plain)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 40)
+                        } else {
+                            LazyVGrid(columns: columns, spacing: 16) {
+                                ForEach(displayedProducts) { product in
+                                    NavigationLink(destination: ProductDetailView(product: product)) {
+                                        ProductCardView(product: product, cartVM: cartVM)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.vertical)
                 }
             }
-            .padding(.vertical)
+            .onAppear { setPriceRange() }
+            .onChange(of: productVM.products.map(\.id)) { _ in setPriceRange() }
         }
-        .onAppear { setPriceRange() }
-        .onChange(of: productVM.products.map(\.id)) { _ in setPriceRange() }
     }
-
+    
     private func setPriceRange() {
         let bounds = priceBounds
         if minPrice < bounds.lowerBound || minPrice > bounds.upperBound {
@@ -103,7 +106,7 @@ struct ProductListView: View {
             minPrice = maxPrice
         }
     }
-
+    
     private func resetFilters() {
         selectedBrand = "All"
         selectedCategory = "All"
@@ -112,7 +115,7 @@ struct ProductListView: View {
         maxPrice = bounds.upperBound
         productVM.searchText = ""
     }
-
+    
     private var headerView: some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -126,7 +129,7 @@ struct ProductListView: View {
         .cornerRadius(14)
         .padding(.horizontal)
     }
-
+    
     private var categoryFilter: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
@@ -145,7 +148,7 @@ struct ProductListView: View {
             .padding(.horizontal)
         }
     }
-
+    
     private var filterPanel: some View {
         VStack(spacing: 14) {
             HStack {
@@ -159,7 +162,7 @@ struct ProductListView: View {
                 .foregroundColor(.blue)
             }
             .padding(.horizontal)
-
+            
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Brand")
@@ -170,7 +173,7 @@ struct ProductListView: View {
                     }
                     .pickerStyle(.menu)
                 }
-
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Category")
                         .font(.caption)
@@ -182,7 +185,7 @@ struct ProductListView: View {
                 }
             }
             .padding(.horizontal)
-
+            
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Price range")
@@ -193,7 +196,7 @@ struct ProductListView: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
-
+                
                 VStack(spacing: 8) {
                     HStack {
                         Text("Min")
@@ -206,7 +209,7 @@ struct ProductListView: View {
                     }
                     Slider(value: $minPrice, in: priceBounds.lowerBound...maxPrice, step: 1)
                         .accentColor(.blue)
-
+                    
                     HStack {
                         Text("Max")
                             .font(.caption2)
@@ -232,7 +235,7 @@ struct ProductListView: View {
 private struct ProductCardView: View {
     let product: Product
     let cartVM: CartViewModel
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Group {
@@ -252,23 +255,23 @@ private struct ProductCardView: View {
             .frame(maxWidth: .infinity)
             .clipped()
             .cornerRadius(16)
-
+            
             VStack(alignment: .leading, spacing: 6) {
                 Text(product.name)
                     .font(.headline)
                     .lineLimit(2)
-
+                
                 Text(product.brand)
                     .font(.caption)
                     .foregroundColor(.secondary)
-
+                
                 HStack {
                     Text("৳\(product.price, specifier: "%.2f")")
                         .font(.subheadline)
                         .foregroundColor(.blue)
                     Spacer()
                 }
-
+                
                 HStack {
                     Text("Stock: \(product.stock)")
                         .font(.caption2)

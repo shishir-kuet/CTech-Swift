@@ -50,7 +50,8 @@ class AuthViewModel: ObservableObject {
                     "id": uid,
                     "email": email,
                     "displayName": displayName,
-                    "isAdmin": isAdmin
+                    "isAdmin": isAdmin,
+                    "role": isAdmin ? "admin" : "user"
                 ]
                 self.db.collection("users").document(uid).setData(userData, merge: true) { error in
                     if let error = error {
@@ -79,7 +80,8 @@ class AuthViewModel: ObservableObject {
                 let userData: [String: Any] = [
                     "id": uid,
                     "email": email,
-                    "isAdmin": isAdmin
+                    "isAdmin": isAdmin,
+                    "role": isAdmin ? "admin" : "user"
                 ]
                 self.db.collection("users").document(uid).setData(userData, merge: true) { error in
                     if let error = error {

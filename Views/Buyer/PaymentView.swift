@@ -5,7 +5,7 @@ struct PaymentView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var cartVM: CartViewModel
     @Environment(\.dismiss) private var dismiss
-
+    
     @State private var paymentMethod = "Credit Card"
     @State private var cardholder = ""
     @State private var cardNumber = ""
@@ -15,69 +15,69 @@ struct PaymentView: View {
     @State private var isProcessing = false
     @State private var paymentMessage: String?
     @State private var paymentSuccess = false
-
+    @State private var showAlert = false
+    
     private let methods = ["Credit Card", "Bkash", "Nagad", "Cash on Delivery"]
-
+    
     var body: some View {
-        Form {
-            Section(header: Text("Payment Method")) {
-                Picker("Method", selection: $paymentMethod) {
-                    ForEach(methods, id: \.self) { Text($0) }
+        ZStack {
+            Color.white.ignoresSafeArea()
+            Color.green.opacity(0.06).ignoresSafeArea()
+            Form {
+                Section(header: Text("Payment Method")) {
+                    Picker("Method", selection: $paymentMethod) {
+                        ForEach(methods, id: \.self) { Text($0) }
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
-            }
-
-            if paymentMethod == "Credit Card" {
-                Section(header: Text("Card Details")) {
-                    TextField("Cardholder name", text: $cardholder)
-                        .textContentType(.name)
-                    TextField("Card number", text: $cardNumber)
-        var body: some View {
-            ZStack {
-                Color.white.ignoresSafeArea()
-                Color.green.opacity(0.06).ignoresSafeArea()
-                Form {
-                    TextField("Expiry MM/YY", text: $expiry)
-                        .keyboardType(.numbersAndPunctuation)
-                    TextField("CVV", text: $cvv)
-                        .keyboardType(.numberPad)
-                }
-            }
-
-            Section(header: Text("Billing & Delivery")) {
-                TextField("Billing address", text: $billingAddress)
-                    .textContentType(.fullStreetAddress)
-                Text("Total payable: ৳\(cartVM.totalPrice, specifier: "%.2f")")
-                    .font(.headline)
-            }
-
-            Section(header: Text("Order Summary")) {
-                Text("Items: \(cartVM.cartItems.count)")
-                Text("Payment method: \(paymentMethod)")
-                Text("Status: Pending confirmation")
-                    .foregroundColor(.secondary)
-            }
-
-            Section {
-                if let message = paymentMessage {
-                    Text(message)
-                        .foregroundColor(paymentSuccess ? .green : .red)
-                        .font(.caption)
-                }
-
-                Button(action: payNow) {
-                    if isProcessing {
-                        HStack {
-                            ProgressView()
-                            Text("Processing...")
-                        }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        Text("Pay Now")
-                            .frame(maxWidth: .infinity)
+                
+                if paymentMethod == "Credit Card" {
+                    Section(header: Text("Card Details")) {
+                        TextField("Cardholder name", text: $cardholder)
+                            .textContentType(.name)
+                        TextField("Card number", text: $cardNumber)
+                        TextField("Expiry MM/YY", text: $expiry)
+                            .keyboardType(.numbersAndPunctuation)
+                        TextField("CVV", text: $cvv)
+                            .keyboardType(.numberPad)
                     }
                 }
-                .disabled(!isFormComplete() || isProcessing)
+                
+                Section(header: Text("Billing & Delivery")) {
+                    TextField("Billing address", text: $billingAddress)
+                        .textContentType(.fullStreetAddress)
+                    Text("Total payable: ৳\(cartVM.totalPrice, specifier: "%.2f")")
+                        .font(.headline)
+                }
+                
+                Section(header: Text("Order Summary")) {
+                    Text("Items: \(cartVM.cartItems.count)")
+                    Text("Payment method: \(paymentMethod)")
+                    Text("Status: Pending confirmation")
+                        .foregroundColor(.secondary)
+                }
+                
+                Section {
+                    if let message = paymentMessage {
+                        Text(message)
+                            .foregroundColor(paymentSuccess ? .green : .red)
+                            .font(.caption)
+                    }
+                    
+                    Button(action: payNow) {
+                        if isProcessing {
+                            HStack {
+                                ProgressView()
+                                Text("Processing...")
+                            }
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            Text("Pay Now")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .disabled(!isFormComplete() || isProcessing)
+                }
             }
         }
         .navigationTitle("Checkout")
@@ -89,9 +89,7 @@ struct PaymentView: View {
         }
         .onAppear { paymentMessage = nil }
     }
-
-    @State private var showAlert = false
-
+    
     private func isFormComplete() -> Bool {
         if cartVM.cartItems.isEmpty || billingAddress.isEmpty { return false }
         if paymentMethod == "Credit Card" {
@@ -99,7 +97,7 @@ struct PaymentView: View {
         }
         return true
     }
-
+    
     private func paymentValidationError() -> String? {
         if cartVM.cartItems.isEmpty { return "Your cart is empty." }
         if billingAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -121,7 +119,7 @@ struct PaymentView: View {
         }
         return nil
     }
-
+    
     private func payNow() {
         if let validationError = paymentValidationError() {
             paymentMessage = validationError
@@ -129,12 +127,12 @@ struct PaymentView: View {
             showAlert = true
             return
         }
-
+        
         guard let currentUser = authVM.currentUser else { return }
-
+        
         isProcessing = true
         paymentMessage = nil
-
+        
         let itemsData = cartVM.cartItems.map { item in
             [
                 "productId": item.product.id,
@@ -143,7 +141,7 @@ struct PaymentView: View {
                 "quantity": item.quantity
             ] as [String: Any]
         }
-
+        
         let orderData: [String: Any] = [
             "userId": currentUser.id,
             "userName": currentUser.displayName ?? currentUser.email,
@@ -154,7 +152,7 @@ struct PaymentView: View {
             "paymentMethod": paymentMethod,
             "timestamp": Timestamp(date: Date())
         ]
-
+        
         let db = Firestore.firestore()
         let orderRef = db.collection("orders").document()
         orderRef.setData(orderData) { error in
@@ -165,7 +163,7 @@ struct PaymentView: View {
                 isProcessing = false
                 return
             }
-
+            
             let batch = db.batch()
             for item in cartVM.cartItems {
                 if let firestoreId = item.product.firestoreId {
@@ -173,14 +171,13 @@ struct PaymentView: View {
                     batch.updateData(["stock": FieldValue.increment(Int64(-item.quantity))], forDocument: productRef)
                 }
             }
-
+            
             batch.commit { batchError in
                 isProcessing = false
                 if let batchError = batchError {
                     paymentMessage = "Order created, but stock update failed: \(batchError.localizedDescription)"
-                    paymentSuccess = false
                 } else {
-                    paymentMessage = "Order placed successfully. Thank you!"
+                    paymentMessage = "Payment successful! Order placed."
                     paymentSuccess = true
                     cartVM.clearCart()
                 }

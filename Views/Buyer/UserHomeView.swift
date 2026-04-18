@@ -3,13 +3,13 @@ import SwiftUI
 struct UserHomeView: View {
     @EnvironmentObject var authVM: AuthViewModel
     @EnvironmentObject var cartVM: CartViewModel
-
+    
     @State private var selectedTab: Tab = .shop
     @State private var showMenu = false
-
+    
     enum Tab: Hashable {
         case shop, orders, cart, payment, profile
-
+        
         var label: String {
             switch self {
             case .shop: return "Shop"
@@ -19,7 +19,7 @@ struct UserHomeView: View {
             case .profile: return "Profile"
             }
         }
-
+        
         var icon: String {
             switch self {
             case .shop: return "bag"
@@ -30,61 +30,85 @@ struct UserHomeView: View {
             }
         }
     }
-
+    
     var body: some View {
-        ZStack(alignment: .leading) {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    ProductListView()
-                        .navigationTitle(selectedTab.label)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { toolbarItems }
+        ZStack(alignment: .bottomLeading) {
+            VStack(spacing: 0) {
+                // Main content area
+                Group {
+                    if selectedTab == .shop {
+                        NavigationStack {
+                            ProductListView()
+                                .navigationTitle(selectedTab.label)
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar { toolbarItems }
+                        }
+                    } else if selectedTab == .orders {
+                        NavigationStack {
+                            MyOrdersView()
+                                .navigationTitle(selectedTab.label)
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar { toolbarItems }
+                        }
+                    } else if selectedTab == .cart {
+                        NavigationStack {
+                            CartView()
+                                .navigationTitle(selectedTab.label)
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar { toolbarItems }
+                        }
+                    } else if selectedTab == .payment {
+                        NavigationStack {
+                            PaymentView()
+                                .navigationTitle(selectedTab.label)
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar { toolbarItems }
+                        }
+                    } else if selectedTab == .profile {
+                        NavigationStack {
+                            UserProfileView()
+                                .navigationTitle(selectedTab.label)
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar { toolbarItems }
+                        }
+                    }
                 }
-            var body: some View {
-                ZStack {
-                    Color.white.ignoresSafeArea()
-                    Color.green.opacity(0.06).ignoresSafeArea()
-                    VStack {
-                NavigationStack {
-                    MyOrdersView()
-                        .navigationTitle(selectedTab.label)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { toolbarItems }
+                
+                // Custom Tab Bar with button styling
+                HStack(spacing: 10) {
+                    ForEach([Tab.shop, Tab.orders, Tab.cart, Tab.payment, Tab.profile], id: \.self) { tab in
+                        VStack(spacing: 4) {
+                            Image(systemName: tab.icon)
+                                .font(.system(size: 20))
+                            Text(tab.label)
+                                .font(.caption2)
+                                .lineLimit(1)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(selectedTab == tab ? .white : .black.opacity(0.7))
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 8)
+                        .background(selectedTab == tab ? Color(red: 0.0, green: 0.4, blue: 0.95) : Color.white.opacity(0.3))
+                        .cornerRadius(10)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedTab = tab
+                            }
+                        }
+                    }
                 }
-                .tag(Tab.orders)
-
-                NavigationStack {
-                    CartView()
-                        .navigationTitle(selectedTab.label)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { toolbarItems }
-                }
-                .tag(Tab.cart)
-
-                NavigationStack {
-                    PaymentView()
-                        .navigationTitle(selectedTab.label)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { toolbarItems }
-                }
-                .tag(Tab.payment)
-
-                NavigationStack {
-                    UserProfileView()
-                        .navigationTitle(selectedTab.label)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar { toolbarItems }
-                }
-                .tag(Tab.profile)
+                .padding(10)
+                .background(Color(red: 0.8, green: 0.9, blue: 1.0))
+                .frame(height: 70)
+                .cornerRadius(12)
+                .padding(8)
             }
-            .tabViewStyle(.automatic)
-
+            
             if showMenu {
                 Color.black.opacity(0.25)
                     .ignoresSafeArea()
                     .transition(.opacity)
                     .onTapGesture { withAnimation { showMenu = false } }
-
                 UserSidebarMenu(selectedTab: $selectedTab, isOpen: $showMenu)
                     .transition(.move(edge: .leading))
             }
@@ -133,10 +157,8 @@ private struct UserSidebarMenu: View {
                         .foregroundColor(.secondary)
                 }
             }
-
             Text("Quick Actions")
                 .font(.headline)
-
             VStack(spacing: 12) {
                 sidebarButton(title: "Shop", icon: "bag", tab: .shop)
                 sidebarButton(title: "My Orders", icon: "list.bullet.rectangle", tab: .orders)
@@ -144,12 +166,9 @@ private struct UserSidebarMenu: View {
                 sidebarButton(title: "Profile", icon: "person.crop.circle", tab: .profile)
                 sidebarButton(title: "Payment", icon: "creditcard", tab: .payment)
             }
-
             Divider()
-
             Text("Account")
                 .font(.headline)
-
             Button(action: { authVM.logout() }) {
                 HStack {
                     Image(systemName: "arrow.turn.up.left")
@@ -157,7 +176,6 @@ private struct UserSidebarMenu: View {
                 }
                 .foregroundColor(.red)
             }
-
             Spacer()
         }
         .padding(.top, 40)
@@ -193,3 +211,4 @@ private struct UserSidebarMenu: View {
         .buttonStyle(.plain)
     }
 }
+
