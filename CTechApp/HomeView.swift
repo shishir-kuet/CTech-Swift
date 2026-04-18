@@ -24,6 +24,9 @@ struct HomeView: View {
                 LoginView()
             }
         }
+        .onAppear {
+            hasSeenOnboarding = false
+        }
         .environmentObject(authVM)
         .environmentObject(cartVM)
     }

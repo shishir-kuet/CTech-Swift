@@ -40,8 +40,11 @@ struct UserHomeView: View {
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar { toolbarItems }
                 }
-                .tag(Tab.shop)
-
+            var body: some View {
+                ZStack {
+                    Color.white.ignoresSafeArea()
+                    Color.green.opacity(0.06).ignoresSafeArea()
+                    VStack {
                 NavigationStack {
                     MyOrdersView()
                         .navigationTitle(selectedTab.label)

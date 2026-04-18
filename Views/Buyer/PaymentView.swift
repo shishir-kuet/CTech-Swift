@@ -32,8 +32,11 @@ struct PaymentView: View {
                     TextField("Cardholder name", text: $cardholder)
                         .textContentType(.name)
                     TextField("Card number", text: $cardNumber)
-                        .keyboardType(.numberPad)
-                        .textContentType(.creditCardNumber)
+        var body: some View {
+            ZStack {
+                Color.white.ignoresSafeArea()
+                Color.green.opacity(0.06).ignoresSafeArea()
+                Form {
                     TextField("Expiry MM/YY", text: $expiry)
                         .keyboardType(.numbersAndPunctuation)
                     TextField("CVV", text: $cvv)

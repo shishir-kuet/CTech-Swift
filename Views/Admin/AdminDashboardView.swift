@@ -12,7 +12,13 @@ struct AdminDashboardView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            AdminStatsView()
+                AdminStatsView()
+                    .background(
+                        ZStack {
+                            Color.white.ignoresSafeArea()
+                            Color.green.opacity(0.06).ignoresSafeArea()
+                        }
+                    )
                 .tabItem { Label("Dashboard", systemImage: "chart.bar") }
                 .tag(0)
 

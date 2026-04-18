@@ -54,7 +54,10 @@ struct ProductListView: View {
                         .padding(.horizontal)
                 }
 
-                filterPanel
+                    ZStack {
+                        Color.white.ignoresSafeArea()
+                        Color.green.opacity(0.06).ignoresSafeArea()
+                        VStack(spacing: 16) {
                 categoryFilter
 
                 if productVM.isLoading {
